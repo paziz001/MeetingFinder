@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MeetingFinder.Api.Queries.Employees;
@@ -28,12 +29,11 @@ namespace MeetingFinder.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddTransient<Func<IEmployeeFileReader>, Func<EmployeeFileReader>>();
+            services.AddTransient(GetEmployeeFileProvider);
             services.AddTransient<IEmployeeQuery, EmployeeQuery>();
             services.AddTransient<IMeetingQuery, MeetingQuery>();
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -48,6 +48,11 @@ namespace MeetingFinder.Api
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        private Func<IEmployeeFileReader> GetEmployeeFileProvider(IServiceProvider serviceProvider)
+        {
+            return () => new EmployeeFileReader(new StreamReader(Configuration.GetValue<string>("DataFilePath")));
         }
     }
 }

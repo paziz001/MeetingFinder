@@ -16,7 +16,7 @@ namespace MeetingFinder.Api.Queries.Employees
         {
             var line = await _streamReader.ReadLineAsync();
             
-            return new EmployeeFileLine(line);
+            return line != null ? new EmployeeFileLine(line) : default;
         }
 
         public void Dispose()

@@ -15,32 +15,6 @@ namespace MeetingFinder.Api.Queries.Employees
             _employeeFileReaderProvider = employeeFileReaderProvider;
         }
 
-        public async Task<Employee> GetEmployeeBy(string id)
-        {
-            var employeeBusySlots = new List<BusySlot>();
-            var employeeFound = false;
-            
-            EmployeeFileLine line;
-            using var reader = _employeeFileReaderProvider();
-            while ((line = await reader.ReadLineAsync()) != null)
-            {
-                if (line.ContainsNameForEmployeeWith(id))
-                {
-                    employeeFound = true;
-                    continue;
-                }
-
-                if (!line.TryExtractBusySlotForEmployeeWith(id, out var busySlot))
-                {
-                    continue;
-                }
-
-                employeeBusySlots.Add(busySlot);
-            }
-
-            return employeeFound ? new Employee(id, employeeBusySlots) : default;
-        }
-        
         public async Task<IEnumerable<Employee>> GetEmployees(IEnumerable<string> ids)
         {
             var employeesFound = new Dictionary<string, (bool EmployeeWasFound, IList<BusySlot> BusySlots)>();
