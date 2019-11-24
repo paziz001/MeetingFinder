@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace MeetingFinder.Api.Queries.Meeting
+namespace MeetingFinder.Api.Queries.Meetings
 {
-    public class GetSuitableMeetings
+    public class SuitableMeetingsRequest
     {
-        public IEnumerable<string> Ids { get; set; }
+        public IList<string>? EmployeeIds { get; set; }
         public int DesiredMeetingLength { get; set; }
         public DateTime requestedEarliestMeetingTime { get; set; }
         public DateTime requestedLatestMeetingTime { get; set; }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,16 +8,16 @@ namespace MeetingFinder.Api.Queries.Employees
     {
         private readonly StreamReader _streamReader;
 
-        public EmployeeFileReader(StreamReader streamReader)
+        public EmployeeFileReader(Func<StreamReader> streamReaderProvider)
         {
-            _streamReader = streamReader;
+            _streamReader = streamReaderProvider();
         }
 
-        public async Task<EmployeeFileLine> ReadLineAsync()
+        public async Task<EmployeeFileLine?> ReadLineAsync()
         {
             var line = await _streamReader.ReadLineAsync();
             
-            return line != null ? new EmployeeFileLine(line) : default;
+            return line != null ? new EmployeeFileLine(line) : null;
         }
 
         public void Dispose()

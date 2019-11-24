@@ -4,11 +4,11 @@ using System.Linq;
 using MeetingFinder.Api.Extensions;
 using MeetingFinder.Api.Models;
 
-namespace MeetingFinder.Api.Queries.Meeting
+namespace MeetingFinder.Api.Queries.Meetings
 {
     public class MeetingQuery : IMeetingQuery
     {
-        public IEnumerable<Models.Meeting> GetSuitableMeetings(
+        public IEnumerable<Meeting> GetSuitableMeetings(
             IEnumerable<BusySlot> busySlots,
             int desiredMeetingLength,
             (DateTime EarliestTime, DateTime LatestTime) desiredDateTimeRange,
@@ -17,31 +17,50 @@ namespace MeetingFinder.Api.Queries.Meeting
             var (desiredEarliestTime, desiredLatestTime) = desiredDateTimeRange;
             var (officeHoursStartTime, officeHoursEndTime) = officeHours;
 
-            AssertMethodParameters(desiredEarliestTime, desiredLatestTime, officeHoursStartTime, officeHoursEndTime);
+            AssertMethodParameters(busySlots, desiredMeetingLength,
+                desiredEarliestTime, desiredLatestTime, officeHoursStartTime, officeHoursEndTime);
 
             var startTimeForMeetingSearch = desiredEarliestTime.GetLatestTimeComparedWith(officeHoursStartTime);
             var endTimeForMeetingSearch = desiredLatestTime.GetEarliestTimeComparedWith(officeHoursEndTime);
             
-            var suitableMeetings = new List<Models.Meeting>();
+            var suitableMeetings = new List<Meeting>();
             var possibleMeetingStartTime = startTimeForMeetingSearch.RoundTimeToHalfOrWhole();
-            var possibleMeetingEndTime = possibleMeetingStartTime.AddMinutes(desiredMeetingLength).RoundTimeToHalfOrWhole();
+            var possibleMeetingEndTime = startTimeForMeetingSearch.AddMinutes(desiredMeetingLength).RoundTimeToHalfOrWhole();
+
             var enumeratedBusySlots = busySlots.ToList();
             while (possibleMeetingEndTime <= endTimeForMeetingSearch)
             {
-                if (!IsSlotTaken(possibleMeetingStartTime, possibleMeetingEndTime, enumeratedBusySlots))
+                if (!IsTimeSlotTaken(possibleMeetingStartTime, possibleMeetingEndTime, enumeratedBusySlots))
                 {
-                    suitableMeetings.Add(new Models.Meeting {Start = possibleMeetingStartTime, End = possibleMeetingEndTime});    
+                    suitableMeetings.Add(new Meeting {Start = possibleMeetingStartTime, End = possibleMeetingEndTime});    
                 }
                 possibleMeetingStartTime = possibleMeetingEndTime.RoundTimeToHalfOrWhole();
-                possibleMeetingEndTime = possibleMeetingStartTime.AddMinutes(desiredMeetingLength).RoundTimeToHalfOrWhole();
+                possibleMeetingEndTime = possibleMeetingEndTime.AddMinutes(desiredMeetingLength).RoundTimeToHalfOrWhole();
+                var incrementalMeetingLength = desiredMeetingLength;
+                while (possibleMeetingStartTime == possibleMeetingEndTime)
+                {
+                    incrementalMeetingLength++;
+                    possibleMeetingEndTime = possibleMeetingEndTime.AddMinutes(incrementalMeetingLength).RoundTimeToHalfOrWhole();
+                }
             }
 
             return suitableMeetings;
         }
 
-        private static void AssertMethodParameters(DateTime desiredEarliestTime, DateTime desiredLatestTime,
+        private static void AssertMethodParameters(IEnumerable<BusySlot> busySlots, int desiredMeetingLength,
+                                                   DateTime desiredEarliestTime, DateTime desiredLatestTime,
                                                    TimeSpan officeHoursStartTime, TimeSpan officeHoursEndTime)
         {
+            if (busySlots == null)
+            {
+                throw new ArgumentException("Busy slots enumerable is null");
+            }
+            
+            if (desiredMeetingLength <= 0)
+            {
+                throw new ArgumentException("Meeting's desired length is lower or equal to 0");
+            }
+
             if (desiredEarliestTime >= desiredLatestTime)
             {
                 throw new ArgumentException("Meeting's desired earliest time is greater than or equal to desired latest time");
@@ -64,10 +83,9 @@ namespace MeetingFinder.Api.Queries.Meeting
             }
         }
 
-        public bool IsSlotTaken(DateTime requestedSlotStart, DateTime requestedSlotEnd, IEnumerable<BusySlot> busySlots)
+        private static bool IsTimeSlotTaken(DateTime requestedSlotStart, DateTime requestedSlotEnd, IEnumerable<BusySlot> busySlots)
         {
-            return busySlots.Any(busySlot => 
-                (requestedSlotStart >= busySlot.Start || requestedSlotEnd > busySlot.Start) && requestedSlotStart < busySlot.End);
+            return busySlots.Any(busySlot => busySlot.IsOverlappedByTimeSlot(requestedSlotStart, requestedSlotEnd));
         }
     }
 }

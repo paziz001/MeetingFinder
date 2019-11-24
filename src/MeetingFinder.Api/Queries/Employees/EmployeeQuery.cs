@@ -19,37 +19,37 @@ namespace MeetingFinder.Api.Queries.Employees
         {
             var employeesFound = new Dictionary<string, (bool EmployeeWasFound, IList<BusySlot> BusySlots)>();
             
-            EmployeeFileLine line;
+            EmployeeFileLine? line;
             using var reader = _employeeFileReaderProvider();
-            var employeeIds = ids.ToList();
+            var enumeratedEmployeeIds = ids.ToList();
             while ((line = await reader.ReadLineAsync()) != null)
             {
-                foreach (var id in employeeIds)
+                foreach (var employeeId in enumeratedEmployeeIds)
                 {
-                    if (line.ContainsNameForEmployeeWith(id))
+                    if (line.ContainsNameForEmployeeWith(employeeId))
                     {
-                        if (!employeesFound.TryAdd(id, (true, new List<BusySlot>())))
+                        if (!employeesFound.TryAdd(employeeId, (true, new List<BusySlot>())))
                         {
-                            var employee = employeesFound.GetValueOrDefault(id);
-                            employeesFound.Remove(id);
-                            employeesFound.Add(id, (true, employee.BusySlots));
+                            var employee = employeesFound.GetValueOrDefault(employeeId);
+                            employeesFound.Remove(employeeId);
+                            employeesFound.Add(employeeId, (true, employee.BusySlots));
                         }
                         continue;
                     }
 
-                    if (!line.TryExtractBusySlotForEmployeeWith(id, out var busySlot))
+                    if (!line.TryExtractBusySlotForEmployeeWith(employeeId, out var busySlot))
                     {
                         continue;
                     }
 
-                    if (employeesFound.ContainsKey(id))
+                    if (employeesFound.ContainsKey(employeeId))
                     {
-                        var employee = employeesFound.GetValueOrDefault(id);
-                        employee.BusySlots.Add(busySlot);
+                        var employee = employeesFound.GetValueOrDefault(employeeId);
+                        employee.BusySlots.Add(busySlot!);
                     }
                     else
                     {
-                        employeesFound.Add(id, (false, new List<BusySlot>{ busySlot }));
+                        employeesFound.Add(employeeId, (false, new List<BusySlot>{ busySlot! }));
                     }
                 }
             }

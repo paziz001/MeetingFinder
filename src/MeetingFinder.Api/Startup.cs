@@ -1,37 +1,30 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using MeetingFinder.Api.Queries.Employees;
-using MeetingFinder.Api.Queries.Meeting;
+using MeetingFinder.Api.Queries.Meetings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace MeetingFinder.Api
 {
     public class Startup
     {
+        private IConfiguration Configuration { get; }
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddTransient(GetEmployeeFileProvider);
-            services.AddTransient<IEmployeeQuery, EmployeeQuery>();
-            services.AddTransient<IMeetingQuery, MeetingQuery>();
+            services.AddTransient(GetEmployeeFileProvider)
+                    .AddTransient<IEmployeeQuery, EmployeeQuery>()
+                    .AddTransient<IMeetingQuery, MeetingQuery>();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -41,18 +34,14 @@ namespace MeetingFinder.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseHttpsRedirection()
+               .UseRouting()
+               .UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
         private Func<IEmployeeFileReader> GetEmployeeFileProvider(IServiceProvider serviceProvider)
         {
-            return () => new EmployeeFileReader(new StreamReader(Configuration.GetValue<string>("DataFilePath")));
+            return () => new EmployeeFileReader(() => new StreamReader(Configuration.GetValue<string>("DataFilePath")));
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MeetingFinder.Api.Models;
 
-namespace MeetingFinder.Api.Queries.Meeting
+namespace MeetingFinder.Api.Queries.Meetings
 {
     public interface IMeetingQuery
     {

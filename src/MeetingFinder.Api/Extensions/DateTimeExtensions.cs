@@ -13,11 +13,19 @@ namespace MeetingFinder.Api.Extensions
         {
             var roundedDateTime =
                 new DateTime(dateTime.Year,dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second);
-            if (roundedDateTime.Minute > 0 && roundedDateTime.Minute < 30)
+            if (roundedDateTime.Minute > 0 && roundedDateTime.Minute <= 15)
+            {
+                roundedDateTime = roundedDateTime.Subtract(TimeSpan.FromMinutes(roundedDateTime.Minute));
+            }
+            if (roundedDateTime.Minute > 15 && roundedDateTime.Minute < 30)
             {
                 roundedDateTime = roundedDateTime.AddMinutes(30 - roundedDateTime.Minute);
             }
-            else if (roundedDateTime.Minute > 30 && roundedDateTime.Minute <= 59)
+            if (roundedDateTime.Minute > 30 && roundedDateTime.Minute <= 45)
+            {
+                roundedDateTime = roundedDateTime.Subtract(TimeSpan.FromMinutes(roundedDateTime.Minute - 30));
+            }
+            else if (roundedDateTime.Minute > 45 && roundedDateTime.Minute <= 59)
             {
                 roundedDateTime = roundedDateTime.AddMinutes(60 - roundedDateTime.Minute);
             }

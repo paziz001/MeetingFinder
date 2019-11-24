@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MeetingFinder.Api.Models;
 using MeetingFinder.Api.Queries.Employees;
-using MeetingFinder.Api.Queries.Meeting;
+using MeetingFinder.Api.Queries.Meetings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MeetingFinder.Api.Controllers
@@ -22,15 +22,15 @@ namespace MeetingFinder.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Meeting>> Get([FromQuery] GetSuitableMeetings getSuitableMeetings)
+        public async Task<IEnumerable<Meeting>> GetSuitableMeetings([FromQuery] SuitableMeetingsRequest suitableMeetingsRequest)
         {
-            var employees = await _employeeQuery.GetEmployees(getSuitableMeetings.Ids);
+            var employees = await _employeeQuery.GetEmployees(suitableMeetingsRequest.EmployeeIds ?? new List<string>());
             var allEmployeeBusySlots =
                 employees.Aggregate(new List<BusySlot>() as IEnumerable<BusySlot>, (a, b) => a.Concat(b.BusySlots));
             return _meetingQuery.GetSuitableMeetings(
-                allEmployeeBusySlots, getSuitableMeetings.DesiredMeetingLength,
-                (getSuitableMeetings.requestedEarliestMeetingTime, getSuitableMeetings.requestedLatestMeetingTime),
-                (getSuitableMeetings.officeHoursStartTime, getSuitableMeetings.officeHoursEndTime));
+                allEmployeeBusySlots, suitableMeetingsRequest.DesiredMeetingLength,
+                (suitableMeetingsRequest.requestedEarliestMeetingTime, suitableMeetingsRequest.requestedLatestMeetingTime),
+                (suitableMeetingsRequest.officeHoursStartTime, suitableMeetingsRequest.officeHoursEndTime));
         }
     }
 }

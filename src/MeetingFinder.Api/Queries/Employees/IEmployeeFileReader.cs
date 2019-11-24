@@ -5,6 +5,6 @@ namespace MeetingFinder.Api.Queries.Employees
 {
     public interface IEmployeeFileReader : IDisposable
     {
-        Task<EmployeeFileLine> ReadLineAsync();
+        Task<EmployeeFileLine?> ReadLineAsync();
     }
 }

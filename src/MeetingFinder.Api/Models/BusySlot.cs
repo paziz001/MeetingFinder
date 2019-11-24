@@ -12,5 +12,10 @@ namespace MeetingFinder.Api.Models
             Start = start;
             End = end;
         }
+
+        public bool IsOverlappedByTimeSlot(DateTime start, DateTime end)
+        {
+            return (start >= Start || end > Start) && start < End;
+        }
     }
 }
