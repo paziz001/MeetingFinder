@@ -1,6 +1,6 @@
 using System;
 
-namespace MeetingFinder.Api
+namespace MeetingFinder.Api.Extensions
 {
     public static class DateTimeExtensions
     {
@@ -23,6 +23,20 @@ namespace MeetingFinder.Api
             }
 
             return roundedDateTime;
+        }
+
+        public static DateTime GetLatestTimeComparedWith(this DateTime dateTime, TimeSpan time)
+        {
+            return dateTime.TimeOfDay > time
+                ? dateTime
+                : dateTime.WithTime(time);
+        }
+        
+        public static DateTime GetEarliestTimeComparedWith(this DateTime dateTime, TimeSpan timeSpan)
+        {
+            return dateTime.TimeOfDay < timeSpan
+                ? dateTime
+                : dateTime.WithTime(timeSpan);
         }
     }
 }

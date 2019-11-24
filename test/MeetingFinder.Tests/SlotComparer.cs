@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using MeetingFinder.Api.Domain;
+using MeetingFinder.Api.Models;
 using Xunit;
 using Xunit.Abstractions;
 

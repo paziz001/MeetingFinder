@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MeetingFinder.Api.Queries.Employees;
+using MeetingFinder.Api.Queries.Meeting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +28,9 @@ namespace MeetingFinder.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddTransient<Func<IEmployeeFileReader>, Func<EmployeeFileReader>>();
+            services.AddTransient<IEmployeeQuery, EmployeeQuery>();
+            services.AddTransient<IMeetingQuery, MeetingQuery>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

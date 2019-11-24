@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using MeetingFinder.Api.Domain;
+using MeetingFinder.Api.Models;
+using MeetingFinder.Api.Queries.Meeting;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -19,7 +20,7 @@ namespace MeetingFinder.Tests
         [Fact]
         public void ShouldReturnCorrectSuitableMeetings()
         {
-            var meetingFinder = new Api.MeetingFinder();
+            var meetingFinder = new MeetingQuery();
             var busySlots = new List<BusySlot>
             {
                 new BusySlot(
@@ -35,7 +36,7 @@ namespace MeetingFinder.Tests
             var desiredMeetingLength = 45;
             var desiredDateTimeRange = ( new DateTime(2019, 11, 17, 7, 30, 0),
                  new DateTime(2019, 11, 17, 18, 30, 0));
-            var officeHours = ( new TimeSpan(8, 0, 0), new TimeSpan(17, 0, 0));
+            var officeHours = ( new TimeSpan(8, 42, 0), new TimeSpan(17, 0, 0));
             var suitableMeetings = meetingFinder.GetSuitableMeetings(busySlots, desiredMeetingLength, desiredDateTimeRange, officeHours);
 
             foreach (var meeting in suitableMeetings)
