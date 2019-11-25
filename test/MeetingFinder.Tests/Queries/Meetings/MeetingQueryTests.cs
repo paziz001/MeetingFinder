@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MeetingFinder.Api.Models;
 using MeetingFinder.Api.Queries.Meetings;
@@ -23,11 +23,15 @@ namespace MeetingFinder.Tests.Queries.Meetings
         public void Should_ReturnCorrectMeetings_When_GetSuitableMeetings(
             IEnumerable<BusySlot> busySlots, int desiredMeetingLength,
             (DateTime EarliestDateTime, DateTime desiredLatestDateTime) desiredDateTimeRange,
-            (TimeSpan StartTime, TimeSpan EndTime) officeHours)
+            (TimeSpan StartTime, TimeSpan EndTime) officeHours, IEnumerable<Meeting> expectedMeetings)
         {
             var meetingQuery = new MeetingQuery();
-            var suitableMeetings = meetingQuery.GetSuitableMeetings(busySlots, desiredMeetingLength, desiredDateTimeRange, officeHours);
-
+            var suitableMeetings = meetingQuery.GetSuitableMeetings(busySlots, desiredMeetingLength, desiredDateTimeRange, officeHours).ToList();
+            suitableMeetings.Should().BeEquivalentTo(expectedMeetings);
+            foreach (var busySlot in busySlots)
+            {
+                _output.WriteLine($"Busy slot starts {busySlot.Start} and ends {busySlot.End}");
+            }
             foreach (var meeting in suitableMeetings)
             {
                 _output.WriteLine($"Start: {meeting.Start}, Start: {meeting.End}");
@@ -58,8 +62,46 @@ namespace MeetingFinder.Tests.Queries.Meetings
                         new BusySlot(DateTime.Parse("11/27/2019 08:30:00"), DateTime.Parse("11/27/2019 09:30:00")),
                         new BusySlot(DateTime.Parse("11/27/2019 10:00:00"), DateTime.Parse("11/27/2019 11:30:00")),
                     },
-                    1, (DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 12:10:00")),
-                    (TimeSpan.Parse("08:40:00"), TimeSpan.Parse("17:00:00"))
+                    15, (DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 12:10:00")),
+                    (TimeSpan.Parse("08:40:00"), TimeSpan.Parse("17:00:00")),
+                    new List<Meeting>
+                    {
+                        new Meeting { Start = DateTime.Parse("11/27/2019 09:30:00"), End = DateTime.Parse("11/27/2019 10:00:00")},
+                        new Meeting { Start = DateTime.Parse("11/27/2019 11:30:00"), End = DateTime.Parse("11/27/2019 12:00:00")}
+                    }
+                };
+                yield return new object[]
+                {
+                    new List<BusySlot>
+                    {
+                        new BusySlot(DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 09:00:00")),
+                        new BusySlot(DateTime.Parse("11/27/2019 08:30:00"), DateTime.Parse("11/27/2019 10:00:00")),
+                        new BusySlot(DateTime.Parse("11/27/2019 14:00:00"), DateTime.Parse("11/27/2019 15:30:00")),
+                    },
+                    50, (DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 14:10:00")),
+                    (TimeSpan.Parse("08:40:00"), TimeSpan.Parse("17:00:00")),
+                    new List<Meeting>
+                    {
+                        new Meeting { Start = DateTime.Parse("11/27/2019 10:30:00"), End = DateTime.Parse("11/27/2019 11:30:00")},
+                        new Meeting { Start = DateTime.Parse("11/27/2019 11:30:00"), End = DateTime.Parse("11/27/2019 12:30:00")},
+                        new Meeting { Start = DateTime.Parse("11/27/2019 12:30:00"), End = DateTime.Parse("11/27/2019 13:30:00")}
+                    }
+                };
+                yield return new object[]
+                {
+                    new List<BusySlot>
+                    {
+                        new BusySlot(DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 09:00:00")),
+                        new BusySlot(DateTime.Parse("11/27/2019 08:30:00"), DateTime.Parse("11/27/2019 10:00:00")),
+                        new BusySlot(DateTime.Parse("11/27/2019 14:00:00"), DateTime.Parse("11/27/2019 15:30:00")),
+                    },
+                    85, (DateTime.Parse("11/27/2019 07:30:00"), DateTime.Parse("11/27/2019 17:00:00")),
+                    (TimeSpan.Parse("08:40:00"), TimeSpan.Parse("17:00:00")),
+                    new List<Meeting>
+                    {
+                        new Meeting { Start = DateTime.Parse("11/27/2019 10:00:00"), End = DateTime.Parse("11/27/2019 11:30:00")},
+                        new Meeting { Start = DateTime.Parse("11/27/2019 11:30:00"), End = DateTime.Parse("11/27/2019 13:00:00")},
+                    }
                 };
             }
 

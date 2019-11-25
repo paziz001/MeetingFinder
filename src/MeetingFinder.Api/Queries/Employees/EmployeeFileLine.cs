@@ -40,7 +40,7 @@ namespace MeetingFinder.Api.Queries.Employees
                 return false;
             }
             
-            busySlot = new BusySlot(busySlotStartTime, busySlotEndTime);
+            busySlot = new BusySlot(busySlotStartTime.ToLocalTime(), busySlotEndTime.ToLocalTime());
             return true;
         }
     }

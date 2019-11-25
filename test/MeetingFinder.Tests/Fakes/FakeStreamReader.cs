@@ -7,9 +7,5 @@ namespace MeetingFinder.Tests.Fakes
         public FakeStreamReader() : base(new MemoryStream())
         {
         }
-        
-        public FakeStreamReader(Stream stream) : base(stream)
-        {
-        }
     }
 }

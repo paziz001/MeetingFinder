@@ -79,16 +79,13 @@ namespace MeetingFinder.Tests.Queries.Employees
                     new Employee("192667735736991251148855951122872467118",
                         new List<BusySlot>
                         {
-                            new BusySlot(DateTime.Parse("2/12/2015 9:00:00 AM"),
-                                DateTime.Parse("2/12/2015 10:30:00 AM")),
-                            new BusySlot(DateTime.Parse("2/12/2015 11:00:00 AM"),
-                                DateTime.Parse("2/12/2015 11:30:00 AM"))
+                            new BusySlot(DateTime.Parse("2/12/2015 9:00:00 AM").ToLocalTime(), DateTime.Parse("2/12/2015 10:30:00 AM").ToLocalTime()),
+                            new BusySlot(DateTime.Parse("2/12/2015 11:00:00 AM").ToLocalTime(), DateTime.Parse("2/12/2015 11:30:00 AM").ToLocalTime())
                         }),
                     new Employee("92667735736991251148855951122872467118",
                         new List<BusySlot>
                         {
-                            new BusySlot(DateTime.Parse("2/12/2015 9:00:00 AM"),
-                                DateTime.Parse("2/12/2015 10:30:00 AM")),
+                            new BusySlot(DateTime.Parse("2/12/2015 9:00:00 AM").ToLocalTime(), DateTime.Parse("2/12/2015 10:30:00 AM").ToLocalTime()),
                         }),
                 };
             }
